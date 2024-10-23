@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo mới</title>
+    <link rel="icon" type="image/x-icon" href="/image/FD.png">
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"> </script>
+    <link rel="stylesheet" href="/css/TaoMoi.css">
+</head>
+
+<body style="background-color: #EEEEEE;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+        <div class="container-fluid">
+            <img src="/image/FD.png" alt="" style="width: 100px; height: 100px; left: 10px;">
+            <b><a class="navbar-brand" href="/TrangChu.html">Fashion Designer</a></b>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll"
+                aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarScroll">
+                <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/TrangChuDemo.html">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Nổi bậc</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Chủ đề của bạn</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarScrollingDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Cài đặt
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
+                            <li><a class="dropdown-item" href="/HoSo.html">Hồ sơ</a></li>
+                            <li><a class="dropdown-item" href="/TaoMoi.html">Tạo mới</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="connectWallet()"
+                        style="width: 200px; margin-left: 20px;">Kết nối ví</button>
+                    <script>
+                        const connectWallet = async () => {
+                            await window.phantom.solana.connect();
+                            let publicKey = window.phantom.solana.publicKey.toBase58();
+                            console.log(publicKey);
+                        }
+                    </script>
+
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <form>
+            <label for="fileInput" class="square-thumbnail">
+                <input type="file" id="fileInput" accept="image/*">
+                <img id="previewImage" src="/image/Uploat_Image.webp" alt="Chọn hình ảnh">
+            </label>
+            <br>
+            <div class="panel">
+                <input type="text" class="form-control" id="validationCustom01 tenInput"
+                    placeholder="Tên tác phẩm..."><br>
+                <input type="text" class="form-control" id="validationCustom01 giaInput"
+                    placeholder="Giá tác phẩm..."><br>
+                <textarea class="form-control is-invalid" id="validationTextarea moTaInput"
+                    placeholder="Mô tả về tác phẩm..." required></textarea><br>
+                <button type="button" class="btn btn-danger" onclick="mintNft()">
+                    Tạo ngay </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            var previewImage = document.getElementById('previewImage');
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = '/image/Uploat_Image.webp'; // Nếu không chọn file hình ảnh, hiển thị ảnh mặc định
+            }
+        });
+
+
+        let publicKey;
+        let show;
+        //Auto Connect
+        (async () => {
+            await window.phantom.solana.connect();
+
+            publicKey = window.phantom.solana.publicKey.toBase58();
+            console.log(publicKey);
+        })();
+
+        // //Manual connect 
+        // const connectWallet = async () => {
+        //     await window.phantom.solana.connect();
+
+        //     publicKey = window.phantom.solana.publicKey.toBase58();
+        //     show = window.phantom.solana.connect();
+        //     console.log(publicKey);
+        //     console.log(show);
+
+        // }
+
+
+
+
+        //========= [Mint NFT PUBLICKEY] ==========
+         const PRIV_KEY = "_1K577Zwv1OxUlKg";
+
+        const toTransaction = (encodedTransaction) => solanaWeb3.Transaction.from(Uint8Array.from(atob(encodedTransaction), c => c.charCodeAt(0)));
+
+        const mintNft = async () => {
+            var myHeaders = new Headers();
+            myHeaders.append("x-api-key", PRIV_KEY);
+
+
+            const fileInput = document.querySelector("#fileInput");
+
+            var formdata = new FormData();
+            formdata.append("network", "devnet");
+            formdata.append("wallet", publicKey);
+            formdata.append("name", "Fashion Designer"); 
+            formdata.append("symbol", "FD");
+            formdata.append("description", "NFT Fashion Designer");
+            formdata.append("attributes", '[{"trait_type":"dev power","value":"over 900"}]');
+            formdata.append("external_url", "https://shyft.to");
+            formdata.append("max_supply", "1");
+            formdata.append("royalty", "5");//phần trăm hoa hồng nhận dc mỗi gd
+            formdata.append("file", fileInput.files[0]);
+            formdata.append("data", fileInput.files[0]);
+            formdata.append("nft_receiver", publicKey);
+            formdata.append('service_charge', `{ "receiver": "9DexaDd8GxVHubvVZeMzninDuJEyFUcYFKEJA8CfHB7u", "amount": 0.01}`);
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: formdata,
+                redirect: 'follow'
+            };
+
+            fetch("https://api.shyft.to/sol/v1/nft/create_detach", requestOptions)
+                .then(async response => {
+                    let res = await response.json();
+                    let transaction = toTransaction(res.result.encoded_transaction);
+
+                    const signedTransaction = await window.phantom.solana.signTransaction(transaction);
+                    const connection = new solanaWeb3.Connection("https://api.devnet.solana.com");
+                    const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+
+                    console.log("TRANSACTION CONFIRMED!!")
+
+                })
+                .catch(error => console.log('error', error));
+
+        }
+        //========= [Mint NFT PRIVATE KEY] ==========
+
+        // const PRIV_KEY_WALLET = "3Hr5XxaPGR2s3t1tSRc6JoGjxJLtD2KdUJtBpGVj7GBemYQu14sL4ttmvJSfBHnyXjkfHn1d7CVeS7KPUY5M4v5d";
+
+        // const mintNftPriv = async () => {
+        //     var myHeaders = new Headers();
+        //     myHeaders.append("x-api-key", PRIV_KEY);
+
+
+        //     const fileInput = document.querySelector("#fileInput");
+
+        //     var formdata = new FormData();
+        //     formdata.append("network", "devnet");
+        //     formdata.append("private_key", PRIV_KEY_WALLET);
+        //     formdata.append("name", "Fashion Designer NFT");
+        //     formdata.append("symbol", "FD");
+        //     formdata.append("description", "NFT Fashion Designer!");
+        //     formdata.append("attributes", '[{"trait_type":"dev power","value":"over 900"}]');
+        //     formdata.append("external_url", "https://shyft.to");
+        //     formdata.append("max_supply", "1");
+        //     formdata.append("royalty", "5");//phần trăm hoa hồng nhận dc mỗi gd
+        //     formdata.append("file", fileInput.files[0]);
+        //     formdata.append("data", fileInput.files[0]);
+        //     formdata.append("nft_receiver", publicKey);
+        //     formdata.append('service_charge', `{ "receiver": "9DexaDd8GxVHubvVZeMzninDuJEyFUcYFKEJA8CfHB7u", "amount": 0.01}`);
+
+        //     var requestOptions = {
+        //         method: 'POST',
+        //         headers: myHeaders,
+        //         body: formdata,
+        //         redirect: 'follow'
+        //     };
+
+        //     fetch("https://api.shyft.to/sol/v1/nft/create", requestOptions)
+        //         .then(async response => {
+        //             console.log("TRANSACTION CONFIRMED!!")
+
+        //         })
+        //         .catch(error => console.log('error', error));
+
+        // }
+
+        //========== [Tranfer Solana] ==========
+
+        // const transferSol = async () => {
+        //     var myHeaders = new Headers();
+        //     myHeaders.append("x-api-key", PRIV_KEY);
+        //     myHeaders.append("Content-Type", "application/json");
+
+        //     var raw = JSON.stringify({
+        //         "network": "devnet",
+        //         "from_address": "78oZPkEVDvpm7DUXHC1ceLPqjazFU4joKzWF3reBWY6",//Người gửi
+        //         "to_address": "6JCJ6HTPvYqkk7WhGPWKec2a3D3GhJo4TtbhdAQQhTJd",//Người nhận
+        //         "amount": 2,
+        //     });
+
+        //     var requestOptions = {
+        //         method: 'POST',
+        //         headers: myHeaders,
+        //         body: raw,
+        //         redirect: 'follow'
+        //     };
+
+        //     fetch("https://api.shyft.to/sol/v1/wallet/send_sol", requestOptions)
+        //         .then(async response => {
+        //             let res = await response.json();
+        //             let transaction = toTransaction(res.result.encoded_transaction);
+
+        //             await window.phantom.solana.signTransaction(transaction);
+
+        //             console.log("TRANSFER SUCCESSFULLY!!")
+        //         })
+        //         .then(result => console.log(result))
+        //         .catch(error => console.log('error', error));
+        // }
+
+        // Thong báo
+        // function showNotification() {
+        //     let title = "Connect ❤️";
+        //     let icon = 'https://homepages.cae.wisc.edu/~ece533/images/zelda.png'; //this is a large image may take more time to show notifiction, replace with small size icon
+        //     let body = "CONNECT SUCCESSFULLY!!!";
+
+        //     let notification = new Notification(title, { body, icon });
+
+        //     notification.onclick = () => {
+        //         notification.close();
+        //         window.parent.focus();
+        //     }
+
+        // }
+
+        // const buyNFT = async () => {
+        //     var myHeaders = new Headers();
+        //     myHeaders.append("x-api-key", PRIV_KEY);
+        //     myHeaders.append("Content-Type", "application/json");
+
+        //     var raw = JSON.stringify({
+        //         "network": "devnet",
+        //         "marketplace_address": "5p4Bua5tSsSo1RJ94H1w5DiMSPfWcvMvnMVjPpZ6sJUb",
+        //         "nft_address": "9A75AztajAwN9wTkg1BsC6xDEzC8pgjidtjnURQS5CZy",
+        //         "price": 2,
+        //         "seller_address": "AaYFExyZuMHbJHzjimKyQBAH1yfA9sKTxSzBc6Nr5X4s",
+        //         "buyer_wallet": "GE4kh5FsCDWeJfqLsKx7zC9ijkqKpCuYQxh8FYBiTJe"
+        //     });
+
+        //     var requestOptions = {
+        //         method: 'POST',
+        //         headers: myHeaders,
+        //         body: raw,
+        //         redirect: 'follow'
+        //     };
+
+        //     fetch("https://api.shyft.to/sol/v1/marketplace/buy", requestOptions)
+        //         .then(response => response.text())
+        //         .then(result => console.log(result))
+        //         .catch(error => console.log('error', error));
+        // }
+    </script>
+</body>
+
+</html>

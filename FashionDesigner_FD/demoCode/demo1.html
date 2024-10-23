@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Modal</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"> </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* CSS cho modal */
+        .modal {
+            display: none;
+            /* Ẩn modal mặc định */
+            position: fixed;
+            /* Hiển thị modal trên tất cả các phần tử khác */
+            z-index: 1;
+            /* Hiển thị modal trên tất cả các phần tử khác */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            /* Thêm thanh cuộn nếu cần */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Tạo hiệu ứng mờ */
+        }
+
+        /* CSS cho nội dung của modal */
+        .modal-content {
+            background-color: #fefefe;
+            margin-left: 20%;
+            margin-top: 100px;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%;
+            /* Thiết lập chiều rộng của modal */
+            height: auto;
+            border-radius: 10px;
+
+        }
+
+        /* Đóng modal khi người dùng nhấn vào nút đóng (x) */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            margin-left: 95%;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* CSS cho container chính */
+        .container {
+            display: flex;
+            width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 20px;
+        }
+
+        /* CSS cho phần bên trái */
+        .left-panel {
+            width: 40%;
+            /* Đặt chiều rộng của phần bên trái là 50% */
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* CSS cho phần bên phải */
+        .right-panel {
+            width: 50%;
+            /* Đặt chiều rộng của phần bên phải là 50% */
+            padding: 20px;
+        }
+
+        /* CSS cho input */
+        input[type="file"] {
+            width: 100%;
+            height: 300px;
+            opacity: 0;
+            /* Ẩn input để có thể tùy chỉnh giao diện */
+        }
+
+        /* CSS cho nút tùy chỉnh */
+        .custom-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            /* Đặt vị trí tương đối để các thẻ input text có thể định vị theo nó */
+            height: 300px;
+            border-radius: 20px;
+        }
+
+        /* CSS cho hình ảnh đã chọn */
+        .custom-input img {
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #selectedImage {
+            border-radius: 10px;
+        }
+
+        /* CSS cho các thẻ input text */
+        .custom-input input[type="text"] {
+            width: calc(100% - 20px);
+            /* Chiều rộng của input text là 100% trừ đi padding */
+            margin-top: 10px;
+            /* Để tạo khoảng cách giữa các input text */
+            margin-right: 20px;
+            /* Để tạo khoảng cách giữa các input text và khung chứa */
+        }
+
+        .is-invalid {
+            height: 150px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Nút mở modal -->
+    <button type="button" class="btn btn-outline-danger" id="openModalBtn"
+                        style="width: 200px; margin-left: 20px;">Tạo NFT</button>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <!-- Nội dung modal -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="container">
+                <div class="left-panel">
+                    <label for="imageInput" class="custom-input">
+                        <input type="file" id="imageInput" accept="image/*">
+                        <img id="selectedImage" src="/image/Uploat_Image.webp">
+                    </label>
+                </div>
+                <div class="right-panel">
+                    <input type="text" class="form-control" id="validationCustom01 tenInput" placeholder="Tên sản phẩm..."><br>
+                    <input type="text" class="form-control" id="validationCustom01 giaInput" placeholder="Giá tác phẩm..."><br>
+                    <textarea class="form-control is-invalid" id="validationTextarea moTaInput" placeholder="Mô tả về tác phẩm..."
+                        required></textarea><br>
+                    <button type="button" class="btn btn-outline-danger" onclick="mintNft()">
+                        Tạo ngay </button>
+                </div>
+            </div>
+            <script>
+                document.getElementById('imageInput').addEventListener('change', function (event) {
+                    var selectedImage = document.getElementById('selectedImage');
+                    var file = event.target.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            selectedImage.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        selectedImage.src = '/image/Uploat_Image.webp'; // Nếu không chọn file hình ảnh, hiển thị ảnh mặc định
+                    }
+                });
+            </script>
+        </div>
+    </div>
+
+    <script>
+        // Lấy phần tử nút và modal
+        var openModalBtn = document.getElementById("openModalBtn");
+        var modal = document.getElementById("myModal");
+
+        // Lấy phần tử đóng (x)
+        var closeBtn = document.getElementsByClassName("close")[0];
+
+        // Khi người dùng nhấn vào nút, mở modal
+        openModalBtn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // Khi người dùng nhấn vào nút đóng (x), đóng modal
+        closeBtn.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // Khi người dùng nhấn ra ngoài modal, đóng modal
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
